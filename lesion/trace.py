@@ -35,7 +35,7 @@ def estimate_mode_width(distribution):
     """
     mode = distribution.argmax()
     halfmax = float(distribution[mode]) / 2
-    whm = (distribution > halfmax).astype(np.float).sum()
+    whm = (distribution > halfmax).astype(np.int).sum()
     return mode, whm
 
 
@@ -69,7 +69,7 @@ def trace_profile(image, sigma=5., width_factor=1., check_vertical=False):
     >>> middle = np.array([0, 0, 0, 0, 0])
     >>> image = np.vstack([edges, middle, edges])
     >>> trace_profile(image, sigma=0)
-    array([ 18.,  0.,  18.])
+    array([ 18.,   0.,  18.])
     """
     if image.ndim > 2:
         image = image.sum(axis=0)
@@ -78,8 +78,8 @@ def trace_profile(image, sigma=5., width_factor=1., check_vertical=False):
         left_right_mean = np.mean(image[:, [0, image.shape[1] - 1]])
         if top_bottom_mean < left_right_mean:
             image = image.T
-    top_distribution = nd.gaussian_filter_1d(image[0], sigma)
-    bottom_distribution = nd.gaussian_filter_1d(image[-1], sigma)
+    top_distribution = nd.gaussian_filter1d(image[0], sigma)
+    bottom_distribution = nd.gaussian_filter1d(image[-1], sigma)
     top_loc, top_whm = estimate_mode_width(top_distribution)
     bottom_loc, bottom_whm = estimate_mode_width(bottom_distribution)
     angle = np.arctan(np.abs(float(bottom_loc - top_loc)) / image.shape[0])

@@ -94,5 +94,5 @@ if __name__ == '__main__':
     from skimage import io
     images = io.imread_collection(sys.argv[1:])
     profiles = map(trace_profile, images)
-    np.savez('profiles.txt', profiles)
+    np.savez_compressed('profiles.npz', profiles)
 

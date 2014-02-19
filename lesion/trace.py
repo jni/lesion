@@ -84,7 +84,8 @@ def trace_profile(image, sigma=5., width_factor=1., check_vertical=False):
     bottom_loc, bottom_whm = estimate_mode_width(bottom_distribution)
     angle = np.arctan(np.abs(float(bottom_loc - top_loc)) / image.shape[0])
     width = np.int(np.ceil(max(top_whm, bottom_whm) * np.cos(angle)))
-    profile = profile_line(image, (0, top_loc), (image.shape[0], bottom_loc),
+    profile = profile_line(image,
+                           (0, top_loc), (image.shape[0] - 1, bottom_loc),
                            linewidth=width, mode='nearest')
     return profile
 

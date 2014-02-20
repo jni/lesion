@@ -1,6 +1,29 @@
 import argparse
 
 
+def get_series_properties(title):
+    """Parse a series title to extract the relevant info.
+
+    Parameters
+    ----------
+    title : string
+        The title of the series.
+
+    Returns
+    -------
+    props : string
+        The relevant part of the title.
+
+    Examples
+    --------
+    >>> title = 'MacAb 3dpf S001--.5dpSCI.lif - MacAb 3dpf S001-_C-E004'
+    >>> get_series_properties(title)
+    'S001-_C-E004'
+    """
+    props = title.split(' ')[-1]
+    return props
+
+
 def convert_files(files, nseries=18, channel=0, verbose=False):
     """Extract series from lif files, flatten, and save as png.
 
@@ -21,7 +44,7 @@ def convert_files(files, nseries=18, channel=0, verbose=False):
     for fin in files:
         if verbose:
             print(fin)
-        fout_base = fin[:-4] + '%02i-%s.png'
+        fout_base = fin[:-4] + '-%02i-%s.png'
         opts = ImporterOptions()
         opts.setId(fin)
         opts.setUngroupFiles(True)
@@ -37,7 +60,7 @@ def convert_files(files, nseries=18, channel=0, verbose=False):
             projector.setImage(imp)
             projector.doProjection()
             impout = projector.getProjection()
-            fout = fout_base % (i, imp.getTitle())
+            fout = fout_base % (i, get_series_properties(imp.getTitle()))
             if verbose:
                 print "creating", fout
             IJ.saveAs(impout, 'png', fout)

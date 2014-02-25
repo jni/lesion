@@ -41,6 +41,8 @@ def convert_files(files, nseries=18, channel=0, verbose=False):
     """
     from jython_imports import IJ, BF, ImporterOptions, ZProjector
     files = sorted(filter(lambda f: f.endswith('.lif'), files))
+    projector = ZProjector()
+    projector.setMethod(ZProjector.SUM_METHOD)
     for fin in files:
         if verbose:
             print(fin)
@@ -54,8 +56,6 @@ def convert_files(files, nseries=18, channel=0, verbose=False):
             opts.setCBegin(i, channel)
             opts.setCEnd(i, channel) 
         imps = BF.openImagePlus(opts)
-        projector = ZProjector()
-        projector.setMethod(ZProjector.SUM_METHOD)
         for i, imp in enumerate(imps):
             projector.setImage(imp)
             projector.doProjection()

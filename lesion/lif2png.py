@@ -39,7 +39,8 @@ def convert_files(files, nseries=18, channel=0, verbose=False):
     verbose : bool, optional
         Print out diagnostic information to stdout.
     """
-    from jython_imports import IJ, BF, ImporterOptions, ZProjector
+    from jython_imports import (IJ, BF, ImporterOptions,
+                                ImageConverter, ZProjector)
     files = sorted(filter(lambda f: f.endswith('.lif'), files))
     projector = ZProjector()
     projector.setMethod(ZProjector.SUM_METHOD)
@@ -60,6 +61,8 @@ def convert_files(files, nseries=18, channel=0, verbose=False):
             projector.setImage(imp)
             projector.doProjection()
             impout = projector.getProjection()
+            converter = ImageConverter(impout)
+            converter.convertToGray16()
             fout = fout_base % (i, get_series_properties(imp.getTitle()))
             if verbose:
                 print "creating", fout

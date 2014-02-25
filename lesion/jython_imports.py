@@ -4,3 +4,4 @@ from ij.process import ImageConverter
 from loci.plugins import BF
 from loci.plugins.in import ImporterOptions
 
+ImageConverter.setDoScaling(False)

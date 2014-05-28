@@ -24,7 +24,7 @@ def get_series_properties(title):
     return props
 
 
-def convert_files(files, nseries=18, channel=0, verbose=False):
+def convert_files(files, nseries=18, channel=0, virtual=False, verbose=False):
     """Extract series from lif files, flatten, and save as png.
 
     Parameters
@@ -36,6 +36,8 @@ def convert_files(files, nseries=18, channel=0, verbose=False):
     channel : int, optional
         The channel within each series containing the image of
         interest.
+    virtual : bool, optional
+        Open a virtual stack instead of a stack. Saves precious memory.
     verbose : bool, optional
         Print out diagnostic information to stdout.
     """
@@ -51,7 +53,10 @@ def convert_files(files, nseries=18, channel=0, verbose=False):
         opts = ImporterOptions()
         opts.setId(fin)
         opts.setUngroupFiles(True)
-        opts.setOpenAllSeries(True)
+        if virtual:
+            opts.setVirtual(True)
+        else:
+            opts.setOpenAllSeries(True)
         for i in range(nseries):
             # keep only the required channel for each series
             opts.setCBegin(i, channel)
@@ -76,11 +81,14 @@ if __name__ == '__main__':
     parser.add_argument('files', help='The files to be converted.', nargs='+')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Print out runtime information.')
+    parser.add_argument('-V', '--virtual', action='store_true',
+                        help='Open virtual stack.')
     parser.add_argument('-n', '--nseries', type=int, metavar='INT', default=18,
                         help='Number of series in each file.')
     parser.add_argument('-c', '--channel', type=int, metavar='INT', default=0,
                         help='Channel of interest.')
 
     args = parser.parse_args()
-    convert_files(args.files, args.nseries, args.channel, args.verbose)
+    convert_files(args.files, args.nseries, args.channel,
+                  args.virtual, args.verbose)
 

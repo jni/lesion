@@ -1,4 +1,5 @@
 import numpy as np
+import re
 import javabridge as jv
 import bioformats as bf
 from xml import etree as et
@@ -89,3 +90,65 @@ def parse_xml_metadata(xml_string, array_order='tzyxc'):
                     resolutions.append(tuple([float(att[t])
                                               for t in res_tags]))
     return names, sizes, resolutions
+
+
+def parse_series_name(name, interval=0.5):
+    """Get series information (time points, embryo) from the name.
+
+    Parameters
+    ----------
+    name : string
+        The name of the image series.
+    interval : float, optional
+        The time interval between timepoints.
+
+    Returns
+    -------
+    embryo : int
+        The embryo ID / position number on the slide.
+    times : array of float
+        The timepoint corresponding to each image.
+
+    Notes
+    -----
+    A "Pre" tag in the name is interpreted as ``t = -1``. A "Mark" tag
+    is interpreted as ``t = np.nan``.
+
+    Examples
+    --------
+    >>> name0 = "Pre lesion 2x/Pos008_S001"
+    >>> e0, t0 = parse_series_name(name0)
+    >>> e0, t0[:5]
+    (8, array([-1.]))
+    >>> name1 = "Mark_and_Find_001/Pos019_S001"
+    >>> e1, t1 = parse_series_name(name1)
+    >>> e1, t1[:5]
+    (19, array([ nan]))
+    >>> name2 = "22.5h to 41h pSCI/Pos013_S001"
+    >>> e2, t2 = parse_series_name(name2)
+    >>> e2, t2[:5]
+    (13, array([ 22.5,  23. ,  23.5,  24. ,  24.5]))
+    >>> name3 = "63 to 72.5hpSCI/Pos004_S001"
+    >>> e3, t3 = parse_series_name(name3, interval=1)
+    >>> e3, t3[:5]
+    (4, array([ 63.,  64.,  65.,  66.,  67.]))
+    """
+    re_pre = r"Pre.*/Pos(\d+)_.*"
+    re_mark = r"Mark.*/Pos(\d+)_.*"
+    re_time = r"(\d+(\.\d+)?)h? to (\d+(\.\d+)?)h.*/Pos(\d+)_.*"
+    m_pre = re.match(re_pre, name)
+    m_mark = re.match(re_mark, name)
+    m_time = re.match(re_time, name)
+    if m_pre:
+        return int(m_pre.groups()[0]), np.array([-1.])
+    elif m_mark:
+        return int(m_mark.groups()[0]), np.array([np.nan])
+    elif m_time:
+        g = m_time.groups()
+        t0 = float(g[0])
+        t1 = float(g[2])
+        embryo = int(g[4])
+        times = np.arange(t0, t1 + float(interval)/2, interval)
+        return embryo, times
+    else:
+        raise ValueError("Could not parse name string: %s" % name)

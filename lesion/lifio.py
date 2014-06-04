@@ -7,6 +7,7 @@ from xml import etree as et
 
 VM_STARTED = False
 VM_KILLED = False
+DEFAULT_DIM_ORDER = 'tzyxc'
 
 
 def start(max_heap_size='8G'):
@@ -61,7 +62,7 @@ def lif_metadata_string_size(filename):
         return length
 
 
-def parse_xml_metadata(xml_string, array_order='tzyxc'):
+def parse_xml_metadata(xml_string, array_order=DEFAULT_DIM_ORDER):
     """Get interesting metadata from the LIF file XML string.
 
     Parameters

@@ -1,5 +1,7 @@
 import numpy as np
 import re
+import collections as coll
+import itertools as it
 import javabridge as jv
 import bioformats as bf
 from xml import etree as et
@@ -8,6 +10,18 @@ from xml import etree as et
 VM_STARTED = False
 VM_KILLED = False
 DEFAULT_DIM_ORDER = 'tzyxc'
+
+
+BF2NP_DTYPE = {
+    0: np.int8,
+    1: np.uint8,
+    2: np.int16,
+    3: np.uint16,
+    4: np.int32,
+    5: np.uint32,
+    6: np.float32,
+    7: np.double
+}
 
 
 def start(max_heap_size='8G'):
@@ -162,3 +176,145 @@ def parse_series_name(name, interval=0.5):
         return embryo, times
     else:
         raise ValueError("Could not parse name string: %s" % name)
+
+
+def read_image_series(filelike, series_id=0, t=None, z=None, c=None,
+                      desired_order=None):
+    """Read an image volume from a file.
+
+    Parameters
+    ----------
+    filelike : string or bf.ImageReader
+        Either a filename containing a BioFormats image, or a
+        `bioformats.ImageReader`.
+    series_id : int, optional
+        Load this series from the image file.
+    t : int or list of int, optional
+        Load this/these timepoint/s only from the image file. If 
+        `None`, load all timepoints.
+    z : int or list of int, optional
+        Load this/these z-plane/s only from the image file. If `None`,
+        load all planes.
+    c : int or list of int, optional
+        Load this/these channel/s only from the image file. If `None`,
+        load all channels.
+    desired_order : string, optional
+        Store the image dimensions in this order, such as "TZCYX". By
+        default, the order will be the exact inverse of the image's
+        native order, since (Leica) files use Fortran order, while
+        NumPy uses C order.
+
+    Returns
+    -------
+    image : numpy ndarray, 5 dimensions
+        The read image.
+    """
+    if not VM_STARTED:
+        start()
+    if VM_KILLED:
+        raise RuntimeError("The Java Virtual Machine has already been "
+                           "killed, and cannot be restarted. See the "
+                           "python-javabridge documentation for more "
+                           "information. You must restart your program "
+                           "and try again.")
+    if isinstance(filelike, bf.ImageReader):
+        rdr = filelike
+    else:
+        rdr = bf.ImageReader(filelike)
+    reader = rdr.rdr
+    total_series = reader.getSeriesCount()
+    if not 0 <= series_id < total_series:
+        raise ValueError("Series ID %i is not between 0 and the total "
+                         "number of series, %i." % (series_id, total_series))
+    reader.setSeries(series_id)
+    order = reader.getDimensionOrder()
+    # we invert the shape because numpy uses C order and (most?) BF images use
+    # Fortran order
+    old_shape = [getattr(reader, "getSize" + s)() for s in order]
+    czt_list, old_shape = _sanitize_czt(c, z, t, old_shape, order)
+    if desired_order is not None:
+        desired_order = desired_order.upper()
+        transposition = _get_ordering(old_shape, desired_order)
+        new_shape = [old_shape[i] for i in transposition]
+    else:
+        new_shape = old_shape[::-1]
+        desired_order = order[::-1]
+    image = np.empty(new_shape, dtype=BF2NP_DTYPE[reader.getPixelType()])
+    for c, z, t in czt_list:
+        indices = []
+        for d in desired_order:
+            if d == 'C':
+                indices.append(c)
+            elif d == 'Z':
+                indices.append(z)
+            elif d == 'T':
+                indices.append(t)
+            else:
+                indices.append(slice(None))
+        image[indices] = rdr.read(z=z, t=t, c=c, series=series_id,
+                                  rescale=False)
+    return image
+
+
+def _get_ordering(actual, desired):
+    """Find an ordering of indices so that desired[i] == actual[ordering[i]].
+
+    Parameters
+    ----------
+    actual, desired : string, same length
+        Two strings differring only in the permutation of their characters.
+
+    Returns
+    -------
+    ordering : list of int
+        A list of indices into `actual` such that
+        ``desired[i] == actual[ordering[i]]``.
+
+    Examples
+    --------
+    >>> actual = "XYCZT"
+    >>> desired = "TZYXC"
+    >>> _get_ordering(actual, desired)
+    [4, 3, 1, 0, 2]
+    """
+    ordering = []
+    for elem in desired:
+        ordering.append(actual.find(elem))
+    return ordering
+
+
+def _sanitize_czt(c, z, t, shape, order):
+    """Ensure cs, zs, and ts are lists, and the correct shape is returned.
+
+    Parameters
+    ----------
+    c, z, t : int, list of int, or None
+        The desired c, z, and t values for the image. `None` means all values
+        are desired.
+    shape : list of int
+        The shape of the final image. *Will be edited in-place.*
+    order : string
+        The order of the dimensions in the file being read.
+
+    Returns
+    -------
+    czt_list : list of (c, z, t) tuple
+        A list of tuples to read in sequentially from the file.
+    shape : list of int
+        The shape of the final image, taking into account the subset of c, z,
+        and t that will be read in.
+    """
+    out = {}
+    for dim, label in zip((c, z, t), ('C', 'Z', 'T')):
+        dim_idx = order.find(label)
+        if dim is None:
+            out[label] = range(shape[dim_idx])
+        else:
+            if not isinstance(dim, coll.Iterable):
+                out[label] = [dim]
+            shape[dim_idx] = len(out[label])
+    czt_order = filter(lambda x: x in 'CZT', order)
+    c, z, t = _get_ordering(czt_order, 'CZT')
+    czt_list = [(tup[c], tup[z], tup[t])
+                for tup in it.product(*[out[char] for char in czt_order])]
+    return czt_list, shape

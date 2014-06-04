@@ -4,6 +4,11 @@ import javabridge as jv
 import bioformats as bf
 from xml import etree as et
 
+
+VM_STARTED = False
+VM_KILLED = False
+
+
 def start(max_heap_size='8G'):
     """Start the Java Virtual Machine, enabling bioformats IO.
 
@@ -14,6 +19,8 @@ def start(max_heap_size='8G'):
         include '256M', '64k', and '2G'. Expect to need a lot.
     """
     jv.start_vm(class_path=bf.JARS, max_heap_size=max_heap_size)
+    global VM_STARTED
+    VM_STARTED = True
 
 def done():
     """Kill the JVM. Once killed, it cannot be restarted.
@@ -23,6 +30,8 @@ def done():
     See the python-javabridge documentation for more information.
     """
     jv.kill_vm()
+    global VM_KILLED
+    VM_KILLED = True
 
 
 def lif_metadata_string_size(filename):

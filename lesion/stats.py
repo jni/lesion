@@ -60,3 +60,43 @@ def slope(tr, sigma=None):
     m, M = np.argmin(tr), np.argmax(tr)
     a = np.abs((tr[m] - tr[M]) / (m - M))
     return a
+
+
+def missing_fluorescence(tr, sigma=None, height=None, margins=50):
+    """Compute amount of fluorescence lost compared with no injury.
+
+    Parameters
+    ----------
+    tr : 1D array of float
+        The input profile.
+    sigma : float, optional
+        Smooth `tr` by a Gaussian filter with this sigma.
+    height : float, optional
+        The base level from which to estimate missed fluorescence. If
+        this is not provided, it is estimated from the values near the
+        edge of the profile.
+    margins : int, optional
+        How much of the edge of the profile is used to compute the
+        normal fluorescence intensity of the profile.
+
+        This is ignored if `height` is given.
+
+    Returns
+    -------
+    m : float
+        The total missing fluorescence under the trace.
+
+    Examples
+    --------
+    >>> tr = np.array([3, 5, 4, 0, 2, 2, 0, 3, 4, 5])
+    >>> missing_fluorescence(tr, margins=3) # 4 + 2 + 2 + 4
+    12.0
+    >>> missing_fluorescence(tr, height=3) # 3 + 1 + 1 + 3
+    8.0
+    """
+    tr = tr.astype(float)
+    if height is None:
+        height = (tr[:margins] + tr[-margins:]) / 2
+    tr = np.clip(tr, 0, height)
+    m = (height - tr).sum()
+    return m

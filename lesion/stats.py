@@ -45,6 +45,14 @@ def slope(tr, sigma=None):
     -------
     a : float
         The slope from max to min, in absolute value.
+
+    Examples
+    --------
+    >>> tr = np.array([5, 5, 5, 0, 2, 1, 0, 5, 5, 5])
+    >>> slope(tr)
+    1.6666666666666667
+    >>> slope(tr, sigma=1)
+    0.75565422533672888
     """
     tr = tr.astype(float)
     if sigma is not None:

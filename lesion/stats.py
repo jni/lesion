@@ -90,13 +90,15 @@ def missing_fluorescence(tr, sigma=None, height=None, margins=50):
     --------
     >>> tr = np.array([3, 5, 4, 0, 2, 2, 0, 3, 4, 5])
     >>> missing_fluorescence(tr, margins=3) # 4 + 2 + 2 + 4
-    12.0
+    14.0
     >>> missing_fluorescence(tr, height=3) # 3 + 1 + 1 + 3
     8.0
     """
     tr = tr.astype(float)
     if height is None:
-        height = (tr[:margins] + tr[-margins:]) / 2
+        height = np.mean(tr[:margins] + tr[-margins:]) / 2
+    if sigma is not None:
+        tr = nd.gaussian_filter1d(tr, sigma=sigma)
     tr = np.clip(tr, 0, height)
     m = (height - tr).sum()
     return m

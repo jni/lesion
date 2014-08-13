@@ -23,8 +23,8 @@ def min_max(tr):
     Examples
     --------
     >>> tr = np.array([0.8, 0.9, 1.4, 2.0, 1.1])
-    >>> min_max(tr) # 0.8 / 2.0
-    0.4
+    >>> min_max(tr) # doctest: +ELLIPSIS
+    0.4...
     """
     tr = tr.astype(float)
     mm = tr.min() / tr.max()
@@ -49,10 +49,10 @@ def slope(tr, sigma=None):
     Examples
     --------
     >>> tr = np.array([5, 5, 5, 0, 2, 1, 0, 5, 5, 5])
-    >>> slope(tr)
-    1.6666666666666667
-    >>> slope(tr, sigma=1)
-    0.75565422533672888
+    >>> slope(tr) # doctest: +ELLIPSIS
+    1.6666...
+    >>> slope(tr, sigma=1) # doctest: +ELLIPSIS
+    0.7556...
     """
     tr = tr.astype(float)
     if sigma is not None:
@@ -89,7 +89,7 @@ def missing_fluorescence(tr, sigma=None, height=None, margins=50):
     Examples
     --------
     >>> tr = np.array([3, 5, 4, 0, 2, 2, 0, 3, 4, 5])
-    >>> missing_fluorescence(tr, margins=3) # 4 + 2 + 2 + 4
+    >>> missing_fluorescence(tr, margins=3) # 1 + 4 + 2 + 2 + 4 + 1
     14.0
     >>> missing_fluorescence(tr, height=3) # 3 + 1 + 1 + 3
     8.0

@@ -170,7 +170,7 @@ def parse_series_name(name, interval=0.5):
     Notes
     -----
     A "Pre" tag in the name is interpreted as ``t = -1``. A "Mark" tag
-    is interpreted as ``t = np.nan``.
+    is interpreted as ``t = -2``.
 
     Examples
     --------
@@ -200,7 +200,7 @@ def parse_series_name(name, interval=0.5):
     if m_pre:
         return int(m_pre.groups()[0]), np.array([-1.])
     elif m_mark:
-        return int(m_mark.groups()[0]), np.array([np.nan])
+        return int(m_mark.groups()[0]), np.array([-2.])
     elif m_time:
         g = m_time.groups()
         t0 = float(g[0])

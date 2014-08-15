@@ -116,6 +116,40 @@ def parse_xml_metadata(xml_string, array_order=DEFAULT_DIM_ORDER):
     return names, sizes, resolutions
 
 
+def metadata(filename, array_order=DEFAULT_DIM_ORDER):
+    """Get metadata from a BioFormats file.
+
+    Parameters
+    ----------
+    filename : string
+        The path to a BioFormats File.
+    array_order : string
+        The order of the dimensions in the multidimensional array.
+        Valid orders are a permutation of "tzyxc" for time, the three
+        spatial dimensions, and channels.
+
+    Returns
+    -------
+    names : list of string
+        The name of each image series.
+    sizes : list of tuple of int
+        The pixel size in the specified order of each series.
+    resolutions : list of tuple of float
+        The resolution of each series in the order given by
+        `array_order`. Time and channel dimensions are ignored.
+    """
+    if not VM_STARTED:
+        start()
+    if VM_KILLED:
+        raise RuntimeError("The Java Virtual Machine has already been "
+                           "killed, and cannot be restarted. See the "
+                           "python-javabridge documentation for more "
+                           "information. You must restart your program "
+                           "and try again.")
+    md_string = bf.get_omexml_metadata(filename)
+    return parse_xml_metadata(md_string)
+
+
 def parse_series_name(name, interval=0.5):
     """Get series information (time points, embryo) from the name.
 

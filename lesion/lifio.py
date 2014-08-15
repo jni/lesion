@@ -212,6 +212,40 @@ def parse_series_name(name, interval=0.5):
         raise ValueError("Could not parse name string: %s" % name)
 
 
+def image_reader(filelike):
+    """Return a BioFormats ``ImageReader`` object from filelike.
+
+    Parameters
+    ----------
+    filelike : string or bf.ImageReader
+        If string, open the corresponding ImageReader. If ImageReader,
+        this function is a no-op.
+
+    Returns
+    -------
+    rdr : bf.ImageReader
+        The relevant reader.
+
+    Notes
+    -----
+    The purpose of this function is to provide a *robust* way to open
+    a BioFormats file --- without having to start the JVM manually.
+    """
+    if not VM_STARTED:
+        start()
+    if VM_KILLED:
+        raise RuntimeError("The Java Virtual Machine has already been "
+                           "killed, and cannot be restarted. See the "
+                           "python-javabridge documentation for more "
+                           "information. You must restart your program "
+                           "and try again.")
+    if isinstance(filelike, bf.ImageReader):
+        rdr = filelike
+    else:
+        rdr = bf.ImageReader(filelike)
+    return rdr
+
+
 def read_image_series(filelike, series_id=0, t=None, z=None, c=None,
                       desired_order=None):
     """Read an image volume from a file.
@@ -243,18 +277,7 @@ def read_image_series(filelike, series_id=0, t=None, z=None, c=None,
     image : numpy ndarray, 5 dimensions
         The read image.
     """
-    if not VM_STARTED:
-        start()
-    if VM_KILLED:
-        raise RuntimeError("The Java Virtual Machine has already been "
-                           "killed, and cannot be restarted. See the "
-                           "python-javabridge documentation for more "
-                           "information. You must restart your program "
-                           "and try again.")
-    if isinstance(filelike, bf.ImageReader):
-        rdr = filelike
-    else:
-        rdr = bf.ImageReader(filelike)
+    rdr = image_reader(filelike)
     reader = rdr.rdr
     total_series = reader.getSeriesCount()
     if not 0 <= series_id < total_series:

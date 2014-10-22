@@ -181,7 +181,7 @@ def parse_series_name(name, interval=0.5):
     >>> name1 = "Mark_and_Find_001/Pos019_S001"
     >>> e1, t1 = parse_series_name(name1)
     >>> e1, t1[:5]
-    (19, array([ nan]))
+    (19, array([-2.]))
     >>> name2 = "22.5h to 41h pSCI/Pos013_S001"
     >>> e2, t2 = parse_series_name(name2)
     >>> e2, t2[:5]

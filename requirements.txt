@@ -1,0 +1,5 @@
+numpy>=1.6
+scipy>=0.10
+scikit-image>=0.10
+javabridge>=1.0.0
+python-bioformats>=1.0.0

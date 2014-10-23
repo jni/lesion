@@ -1,0 +1,18 @@
+language: python
+python:
+    - "2.7"
+virtualenv:
+    system_site_packages: true
+before_install:
+    - sudo apt-get install python-numpy
+    - pip install pytest pytest-cov
+    - pip install coveralls
+    - pip install javabridge python-bioformats
+
+script:
+    - python setup.py install
+    - rm -rf build
+    - py.test
+
+after_success:
+    - coveralls

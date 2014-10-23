@@ -93,6 +93,8 @@ def missing_fluorescence(tr, sigma=None, height=None, margins=50):
     14.0
     >>> missing_fluorescence(tr, height=3) # 3 + 1 + 1 + 3
     8.0
+    >>> np.round(missing_fluorescence(tr, sigma=1, margins=3), decimals=2)
+    12.56
     """
     tr = tr.astype(float)
     if height is None:

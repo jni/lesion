@@ -291,7 +291,7 @@ def read_image_series(filelike, series_id=0, t=None, z=None, c=None,
     czt_list, old_shape = _sanitize_czt(c, z, t, old_shape, order)
     if desired_order is not None:
         desired_order = desired_order.upper()
-        transposition = _get_ordering(old_shape, desired_order)
+        transposition = _get_ordering(order, desired_order)
         new_shape = [old_shape[i] for i in transposition]
     else:
         new_shape = old_shape[::-1]

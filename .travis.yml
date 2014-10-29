@@ -8,6 +8,11 @@ before_install:
     - pip install pytest pytest-cov
     - pip install coveralls
     - pip install javabridge python-bioformats
+    # get test data
+    - cd lesion/tests
+    - wget -i test_data_urls.txt
+    - unzip *.zip
+    - cd ../..
 
 script:
     - python setup.py install

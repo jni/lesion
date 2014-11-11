@@ -67,6 +67,11 @@ def trace_profile(image, sigma=5., width_factor=1., check_vertical=False):
     >>> image = np.vstack([edges, middle, edges])
     >>> trace_profile(image, sigma=0)
     array([ 18.,   0.,  18.])
+    >>> image3d = np.array([image, image, image])
+    >>> trace_profile(image3d, sigma=0)
+    array([ 54.,   0.,  54.])
+    >>> trace_profile(image.T, sigma=0, check_vertical=True)
+    array([ 18.,   0.,  18.])
     """
     if image.ndim > 2:
         image = image.sum(axis=0)

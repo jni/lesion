@@ -1,9 +1,6 @@
 import numpy as np
 from scipy import ndimage as nd
-try:
-    from skimage.measure import profile_line
-except ImportError:
-    from .profile import profile_line
+from skimage.measure import profile_line
 
 
 def estimate_mode_width(distribution):

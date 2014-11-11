@@ -1,2 +1,4 @@
 [run]
-omit = *test_profile.py
+omit =
+    *test_profile.py
+    *test_zz_lifio.py

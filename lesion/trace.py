@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 from scipy import ndimage as nd
 from skimage.measure import profile_line
@@ -92,10 +93,20 @@ def trace_profile(image, sigma=5., width_factor=1., check_vertical=False):
     return profile
 
 
-if __name__ == '__main__':
-    import sys
+def _main(argv=sys.argv):
+    """Run trace on each of the given input files, save to profile.npz
+
+    Parameters
+    ----------
+    argv : list of string, optional
+        The argument vector. argv[1:] will be considered input
+        filenames. Used mainly for testing.
+    """
     from skimage import io
     images = io.imread_collection(sys.argv[1:])
     profiles = map(trace_profile, images)
     np.savez_compressed('profiles.npz', profiles)
 
+
+if __name__ == '__main__': # pragma: no cover
+    _main()

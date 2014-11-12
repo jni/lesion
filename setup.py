@@ -20,7 +20,7 @@ PYTHON_VERSION      = (2, 7)
 INST_DEPENDENCIES   = {} 
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': # pragma: no cover
 
     setup(name=DISTNAME,
         version=VERSION,

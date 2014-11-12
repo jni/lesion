@@ -16,6 +16,28 @@ all_stats = [stats.min_max, stats.slope, stats.missing_fluorescence]
 all_stat_names = ['min_max', 'slope', 'missing']
 
 
+def bad_image(im):
+    """Heuristic to determine if the image was a bad acquisition.
+
+    Sometimes, due to microscope misalignment or the embryo dying, the
+    input image contains little or no fluorescence, making downstream
+    statistics noisy or misleading. This function returns ``True`` when
+    its heuristics (see source) determine that the image is not good.
+
+    Parameters
+    ----------
+    im : array, shape (M, N)
+        The input image.
+
+    Returns
+    -------
+    is_bad : bool
+        ``True`` when `im` is bad.
+    """
+    is_bad = im.max() < 100
+    return is_bad
+
+
 def traces_dict(fin):
     """From a LIF file, produce image series, traces, stats.
 

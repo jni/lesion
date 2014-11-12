@@ -1,4 +1,5 @@
 import os
+import collections as coll
 from lesion import lifio
 
 import numpy as np
@@ -50,11 +51,19 @@ def test_read_one_channel():
 
 @skipif(test_lif_unavailable)
 def test_series_iterator():
-    import collections as coll
     series_iter = lifio.series_iterator(test_lif)
     assert isinstance(series_iter, coll.Iterator)
     for series in series_iter:
         assert series.shape[-3:] == (4, 512, 512)
+
+
+@skipif(test_lif_unavailable)
+def test_series_iterator_limited():
+    series_iter = lifio.series_iterator(test_lif, series=[0], c=0)
+    assert isinstance(series_iter, coll.Iterator)
+    series_list = list(series_iter)
+    assert len(series_list) == 1
+    assert series_list[0].shape == (1, 25, 1, 512, 512)
 
 
 @skipif(test_lif_unavailable)

@@ -313,13 +313,15 @@ def read_image_series(filelike, series_id=0, t=None, z=None, c=None,
     return image
 
 
-def series_iterator(filelike, **kwargs):
+def series_iterator(filelike, series=None, **kwargs):
     """Iterate over all the series in a file.
 
     Parameters
     ----------
     filelike : string or bf.ImageReader
         The input file.
+    series : iterable of int, optional
+        Limit the iteration to the specified series.
     **kwargs : keyword arguments, optional
         Keyword arguments to be passed on to `read_image_series`.
 
@@ -329,8 +331,9 @@ def series_iterator(filelike, **kwargs):
         Iterator over all series in `filelike`.
     """
     rdr = image_reader(filelike)
-    total_series = rdr.rdr.getSeriesCount()
-    for series_id in range(total_series):
+    if series is None:
+        series = range(rdr.rdr.getSeriesCount())
+    for series_id in series:
         yield read_image_series(rdr, series_id, **kwargs)
 
 

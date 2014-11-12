@@ -38,13 +38,15 @@ def bad_image(im):
     return is_bad
 
 
-def traces_dict(fin):
+def traces_dict(fin, chan=0):
     """From a LIF file, produce image series, traces, stats.
 
     Parameters
     ----------
     fin : string
         The input filename.
+    chan : int, optional
+        The channel containing the image to be traced.
 
     Returns
     -------
@@ -67,7 +69,7 @@ def traces_dict(fin):
                               columns=it.product(positions, all_stat_names))
 
     for i, name in enumerate(names):
-        images = lifio.read_image_series(rdr, i, desired_order='cztyx')[0]
+        images = lifio.read_image_series(rdr, i, desired_order='cztyx', c=chan)
         images2d = images.sum(axis=0) # squish z dimension
         position, times = lifio.parse_series_name(name)
         traces[position]['times'] = times

@@ -313,6 +313,27 @@ def read_image_series(filelike, series_id=0, t=None, z=None, c=None,
     return image
 
 
+def series_iterator(filelike, **kwargs):
+    """Iterate over all the series in a file.
+
+    Parameters
+    ----------
+    filelike : string or bf.ImageReader
+        The input file.
+    **kwargs : keyword arguments, optional
+        Keyword arguments to be passed on to `read_image_series`.
+
+    Returns
+    -------
+    seit : iterator
+        Iterator over all series in `filelike`.
+    """
+    rdr = image_reader(filelike)
+    total_series = rdr.rdr.getSeriesCount()
+    for series_id in range(total_series):
+        yield read_image_series(rdr, series_id, **kwargs)
+
+
 def _get_ordering(actual, desired):
     """Find an ordering of indices so that desired[i] == actual[ordering[i]].
 

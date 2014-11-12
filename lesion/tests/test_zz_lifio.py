@@ -43,6 +43,15 @@ def test_read_one_channel():
 
 
 @skipif(test_lif_unavailable)
+def test_series_iterator():
+    import collections as coll
+    series_iter = lifio.series_iterator(test_lif)
+    assert isinstance(series_iter, coll.Iterator)
+    for series in series_iter:
+        assert series.shape[-3:] == (4, 512, 512)
+
+
+@skipif(test_lif_unavailable)
 def test_invalid_series_id():
     # test LIF has only 2 series (0 and 1).
     assert_raises(ValueError, lifio.read_image_series, test_lif, series_id=5)

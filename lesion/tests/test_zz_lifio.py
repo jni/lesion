@@ -27,6 +27,12 @@ def test_metadata():
 
 
 @skipif(test_lif_unavailable)
+def test_metadata_different_ordering():
+    names, sizes, reso = lifio.metadata(test_lif, array_order='zcyxt')
+    assert_equal(sizes, [(25, 4, 512, 512, 1), (46, 4, 512, 512, 1)])
+
+
+@skipif(test_lif_unavailable)
 def test_read_image_series():
     rdr0 = lifio.image_reader(test_lif)
     im0 = lifio.read_image_series(rdr0, desired_order=None)

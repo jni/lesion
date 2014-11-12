@@ -147,7 +147,7 @@ def metadata(filename, array_order=DEFAULT_DIM_ORDER):
                            "information. You must restart your program "
                            "and try again.")
     md_string = bf.get_omexml_metadata(filename)
-    return parse_xml_metadata(md_string)
+    return parse_xml_metadata(md_string, array_order)
 
 
 def parse_series_name(name, interval=0.5):

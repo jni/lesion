@@ -193,7 +193,7 @@ def parse_series_name(name, interval=0.5):
     """
     re_pre = r"Pre.*/Pos(\d+)_.*"
     re_mark = r"Mark.*/Pos(\d+)_.*"
-    re_time = r"(\d+(\.\d+)?)h? to (\d+(\.\d+)?)h.*/Pos(\d+)_.*"
+    re_time = r"(\d+(\.\d+)?)h? to (\d+(\.\d+)?) ?h.*/Pos(\d+)_.*"
     m_pre = re.match(re_pre, name)
     m_mark = re.match(re_mark, name)
     m_time = re.match(re_time, name)

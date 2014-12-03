@@ -71,6 +71,7 @@ def traces_dict(fin, series=None, chan=0, return_images=False):
     rdr = lifio.image_reader(fin)
     all_times = _times(names)
     positions, times = zip(*map(lifio.parse_series_name, names))
+    positions = sorted(set(positions))
     traces = collections.OrderedDict()
     ntimes, npositions, nstats = map(len, [all_times, positions, all_stats])
     statistics = (np.empty((ntimes, npositions * nstats), dtype=np.float32) *
